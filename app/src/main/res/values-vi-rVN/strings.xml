@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Điện thoại của Vy</string>
+    <string name="hello_message">Xin chào!</string>
+    <string name="button_message">Tôi là nút bấm</string>
+</resources>

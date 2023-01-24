@@ -3,5 +3,7 @@
     <string name="hello_message">Hello World!</string>
     <string name="button_message">I\'m a button</string>
     <string name="edit_message">I\'m an Edit Text</string>
-    <string name="hint_text">Write something here</string>
+    <string name="radio_btn_message">Do you drink coffee?</string>
+    <string name="switch_message">Do you drink coffee?</string>
+    <string name="checkbox_message">Do you drink coffee?</string>
 </resources>

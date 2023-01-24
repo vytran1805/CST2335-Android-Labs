@@ -21,11 +21,40 @@
         android:text="@string/button_message"
         android:textColor="#00695C" />
 
+    <RadioButton
+        android:id="@+id/radioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/radio_btn_message"/>
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/switch_message" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/checkbox_message" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo_algonquin" />
+
+    <ImageButton
+        android:id="@+id/myImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/button_icon" />
+
     <EditText
         android:id="@+id/myEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/edit_message"
-        android:hint="@string/hint_text" />
+        android:text="@string/edit_message" />
 
 </LinearLayout >

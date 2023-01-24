@@ -3,4 +3,8 @@
     <string name="app_name">Điện thoại của Vy</string>
     <string name="hello_message">Xin chào!</string>
     <string name="button_message">Tôi là nút bấm</string>
+    <string name="edit_message">Nhập văn bản</string>
+    <string name="radio_btn_message">Bạn có uống cafe không?</string>
+    <string name="switch_message">Bạn có uống cafe không?</string>
+    <string name="checkbox_message">Bạn có uống cafe không?</string>
 </resources>

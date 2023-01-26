@@ -10,11 +10,11 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:text="Button"
         app:layout_constraintEnd_toStartOf="@+id/button2"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,5 +39,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button2"
         app:layout_constraintTop_toTopOf="@+id/button2" />
+<!--toEnd means Right in Left to Right language-->
+<!--toStart means Left in Right to Left language    -->
+    <ImageView
+        android:id="@+id/flagView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="@+id/button1"
+        app:layout_constraintTop_toBottomOf="@+id/button1"
+        app:srcCompat="@drawable/flag" />
+    <!--constraintHorizontal_bias: make 1 elastic stronger than the other-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

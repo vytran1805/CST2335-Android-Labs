@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="yellow_200">#8EB6FB</color>
+    <color name="yellow_500">#0160EF</color>
+    <color name="yellow_700">#C40E24B8</color>
+    <color name="teal_song">#DF89ED</color>
+    <color name="teal_700">#7C0290</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="my_text">#00BCD4</color>
+</resources>

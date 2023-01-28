@@ -3,4 +3,8 @@
     <string name="app_name">Điện thoại của Vy</string>
     <string name="hello_message">Xin chào!</string>
     <string name="button_message">Tôi là nút bấm</string>
+    <string name="spin_message">Xoay lá cờ</string>
+    <string name="button1">Nút bấm 1</string>
+    <string name="button2">Nút bấm 2</string>
+    <string name="button3">Nút bấm 3</string>
 </resources>

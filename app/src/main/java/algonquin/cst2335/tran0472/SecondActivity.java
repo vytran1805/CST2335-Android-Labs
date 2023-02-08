@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,12 +30,12 @@ import algonquin.cst2335.tran0472.databinding.ActivityMainBinding;
 import algonquin.cst2335.tran0472.databinding.ActivitySecondBinding;
 
 public class SecondActivity extends AppCompatActivity {
-    ActivitySecondBinding secondBinding = ActivitySecondBinding.inflate(getLayoutInflater());
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        ActivitySecondBinding secondBinding = ActivitySecondBinding.inflate(getLayoutInflater());
         super.onCreate(savedInstanceState);
         //ActivitySecondBinding
 
@@ -48,6 +49,10 @@ public class SecondActivity extends AppCompatActivity {
         secondBinding.textView.setText(getString(R.string.welcome,emailAddress));   //display the email to the Second page, format "Welcome, +address"
         Log.d("Second activity","Email Address is "+ emailAddress);
 
+        //save the value of the phone number that is currently entered in the EditText on that page
+        SharedPreferences prefs = getSharedPreferences("MyData",Context.MODE_PRIVATE);  //fetching the stored data from the SharedPreference
+        String phone = prefs.getString("PhoneNumber","");
+        secondBinding.editTextPhone.setText(phone); //setting the fetched data in the EditText
         //make a phone call
         secondBinding.secondPageButton1.setOnClickListener(btn->{
             Intent call = new Intent(Intent.ACTION_DIAL);
@@ -109,13 +114,15 @@ public class SecondActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        SharedPreferences prefs = getSharedPreferences("MyData",Context.MODE_PRIVATE);
-//        SharedPreferences.Editor myEdit = prefs.edit();
-//        String phoneNumber = secondBinding.editTextPhone.getText().toString();
-//        myEdit.putString("PhoneNumber",phoneNumber);
-//        myEdit.apply();
-//    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //store the data in the SharedPreference in the onPause() method
+        // when the user closes the application, onPause() will be called and data will be stored
+        SharedPreferences prefs = getSharedPreferences("MyData",Context.MODE_PRIVATE);
+        SharedPreferences.Editor myEdit = prefs.edit();
+        EditText phoneNumber = findViewById(R.id.editTextPhone);
+        myEdit.putString("PhoneNumber",phoneNumber.getText().toString());
+        myEdit.apply();
+    }
 }

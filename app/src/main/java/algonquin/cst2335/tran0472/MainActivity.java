@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 
 import algonquin.cst2335.tran0472.databinding.ActivityMainBinding;
 
@@ -69,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
     @Override   // Opposite to onStart(), no longer visible
     protected void onStop() {
         super.onStop();
+        //store the data in the SharedPreference in the onStop() method
+        // when the user restart the application, onStop() will be called and data will be stored
+        SharedPreferences prefs = getSharedPreferences("MyData",Context.MODE_PRIVATE);
+        SharedPreferences.Editor myEdit = prefs.edit();
+        EditText emailEdit = findViewById(R.id.emailEditText);
+        myEdit.putString("LoginName",emailEdit.getText().toString());
+        myEdit.apply();
         Log.w( TAG, "In onStop() - The application is no longer visible" );
     }
 

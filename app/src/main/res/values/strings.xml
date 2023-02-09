@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Vy\'s Android Labs</string>
-    <string name="hello_message">Hello World!</string>
-    <string name="button_message">I\'m a button</string>
+    <string name="password_message">Type your password</string>
+    <string name="button_message">Login</string>
 </resources>

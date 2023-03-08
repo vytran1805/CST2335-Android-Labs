@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import algonquin.cst2335.tran0472.R;
+
 /** This is the page that simulates a login page
  * @author VyTran
  * @version 1.0
@@ -23,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * onCreate() method
-     * @param savedInstanceState
+     * @param savedInstanceState sth
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

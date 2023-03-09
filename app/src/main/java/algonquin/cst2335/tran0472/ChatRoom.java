@@ -123,7 +123,8 @@ public class ChatRoom extends AppCompatActivity {
              */
             public int getItemViewType(int position){
                 //return an int number
-                return position % 2;
+                ChatMessage obj = messageList.get(position);
+                return obj.isSentButton()?0:1;
             }
         });
 //        specify a single column scrolling in a Vertical direction (we can either scroll in a Vertical or Horizontal direction through the items)

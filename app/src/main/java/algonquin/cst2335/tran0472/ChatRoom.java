@@ -1,19 +1,29 @@
 package algonquin.cst2335.tran0472;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import algonquin.cst2335.tran0472.data.ChatRoomViewModel;
 import algonquin.cst2335.tran0472.databinding.ActivityChatRoomBinding;
@@ -27,31 +37,65 @@ public class ChatRoom extends AppCompatActivity {
     private RecyclerView.Adapter myAdapter;
     ChatRoomViewModel chatModel;
     private ArrayList<ChatMessage> messageList;
+    ChatMessageDAO mDAO;
 
     SimpleDateFormat sdf = new SimpleDateFormat("EEEE,dd-MMM-yyyy hh-mm-ss a");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /***********************************************************
+         * Lab 7
+         ************************************************************/
+        //get a database
+        MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class,"database-name").build();
+        mDAO = db.cmDAO();
 
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
 //        initialize the chatModel
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
-        messageList = chatModel.messages.getValue();
+        messageList = chatModel.messages.getValue();    //survives rotation changes
+
         if(messageList == null)
         {
-            chatModel.messages.postValue( messageList = new ArrayList<ChatMessage>());
+            chatModel.messages.postValue( messageList = new ArrayList<>());
+            /**
+             *  Lab 7: add messages from database to ArrayList
+             *  However, we should only set the adapter for recyclerView inside the execute() function,
+             *  so that the RecyclerView show the data after the database has loaded it
+             */
+            Executor thread = Executors.newSingleThreadExecutor();
+
+            thread.execute(()->{    //add everything from the database
+                //        first load the old messages
+                List<ChatMessage> previousMessage = mDAO.getAllMessages();  //select * from ChatMessage
+                //second thread
+                messageList.addAll(previousMessage);
+                //main thread                                                   //once we get the data from the database
+                runOnUiThread(()-> binding.recycleView.setAdapter(myAdapter));  //then we can load the RecyclerView
+            });
         }
 
 //      Add event listener
         binding.sendButton.setOnClickListener(click->{
             String message = binding.textInput.getText().toString();
             String currentDateTime = sdf.format(new Date());
-            ChatMessage txt = new ChatMessage(message,currentDateTime,true);
+            ChatMessage txt = new ChatMessage(message, currentDateTime, true);
                     //binding.textInput.getText().toString();
             messageList.add(txt);
-                    //add(txt.getMessage());
+            //no more crashes
+//            Executor thread = Executors.newSingleThreadExecutor();
+//
+//        /**********************************************
+//            //Lab7:insert into database
+//         *********************************************/
+//            thread.execute(()->{
+//                // return the id
+//                   long id = mDAO.insertMessage(txt);
+//                   txt.id = (int) id;   //database is saying what the id is
+//            });
+
             // notify the Adapter obj that something has been inserted or deleted so the RecyclerView update the new element
             myAdapter.notifyItemInserted(messageList.size()-1);    //the row that needs to be updated is messages.size()-1
 
@@ -62,7 +106,7 @@ public class ChatRoom extends AppCompatActivity {
 
             String message = binding.textInput.getText().toString();
             String currentDateTime = sdf.format(new Date());
-            ChatMessage obj = new ChatMessage(message,currentDateTime,false);
+            ChatMessage obj = new ChatMessage(message, currentDateTime, false);
             //binding.textInput.getText().toString();
             messageList.add(obj);
             //add(txt.getMessage());
@@ -72,8 +116,8 @@ public class ChatRoom extends AppCompatActivity {
             //Clear the previous Text
             binding.textInput.setText("");
         });
-//      initialize the myAdapter variable
-        binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
+//      initialize the myAdapter variable, only call this after loading all messages
+        myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
             @Override   //which XML layout for this row? sent_message.xml, comes from
             public MyRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {    //viewType is what return from getItemViewType() function
@@ -126,28 +170,76 @@ public class ChatRoom extends AppCompatActivity {
                 ChatMessage obj = messageList.get(position);
                 return obj.isSentButton()?0:1;
             }
-        });
+        };
 //        specify a single column scrolling in a Vertical direction (we can either scroll in a Vertical or Horizontal direction through the items)
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
     }
-    class MyRowHolder extends RecyclerView.ViewHolder{
-        protected TextView messageText;
-        protected TextView timeText;
-
-        public MyRowHolder(@NonNull View itemView){     //iemView will be the root of the layout: ConstrainLayout in xml file
+     class MyRowHolder extends RecyclerView.ViewHolder{
+        TextView messageText;
+        TextView timeText;
+        public MyRowHolder(@NonNull View itemView) {     //iemView will be the root of the layout: ConstrainLayout in xml file
             super(itemView);
+            /***************************************************************************
+//            Lab7: setOnClickListener for itemView so that when we click anywhere on the ConstraintLayout,
+//            it'll load an alert window asking if we want to delete this row
+             ***************************************************************************/
+            itemView.setOnClickListener(clk -> {    //we have clicked on
+                //we have
+                int position = getAdapterPosition();    //which row was clicked
+                ChatMessage removedMessage = messageList.get(position);
+                //thread1.execute(()->{
+                    //                set the alert dialog to ask if user want to delete message
+                    AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+                    builder.setMessage("Do you want to delete the message: "+messageText.getText());
+                    builder.setTitle("Question: ");
+                    // create a button to confirm the action
+                    builder.setNegativeButton("No",(dialog, cl)->{
+                        //if user click No, it does nothing
+                    });
+                    builder.setPositiveButton("Yes",(dialog, cl)->{
+                        Executor thread1 = Executors.newSingleThreadExecutor();
+                        //use thread.execute() to avoid crashing whenever using DAO
+                        thread1.execute(()->{   //add everything from the database
+                            mDAO.deleteMessage(removedMessage);  //delete message from the database
+                        });
+                        messageList.remove(position);
+                        myAdapter.notifyItemRemoved(position);  //update the RecycleView
+                        /**
+                         * Snackbar similar to Toast, it shows a message for a LENGTH_SHORT or LENGTH_LONG amount of time
+                         * position is the index of the table, start at 0, so we add 1 to get actual the order of the message
+                         * it also uses the Builder Pattern: .make() returns a Snackbar, .setAction() can undo, .show() shows it
+                         */
+                        Snackbar.make(messageText,"You deleted message #"+(position+1),Snackbar.LENGTH_LONG)
+                                .setAction("Undo",click->{
+                                    messageList.add(position,removedMessage);
+                                    myAdapter.notifyItemInserted(position);
+                                })
+                                .show();
+                     });
+                    //this actually shows the functions above
+                    builder.create().show();    //this is builder pattern: 2 functions called the same time,
+                });
             messageText = itemView.findViewById(R.id.message);
             timeText = itemView.findViewById(R.id.time);
         }
     }
-    public class ChatMessage{
+
+    @Entity //Save obj of the class into the database
+    public static class ChatMessage{
+        @ColumnInfo(name="Message") //specify the column name
         String message;
+        @ColumnInfo(name="TimeSent") //specify the column name
         String timeSent;
-        boolean isSentButton;
-        ChatMessage(String m, String t, boolean sent){
-            message = m;
-            timeSent = t;
-            isSentButton = sent;
+        @ColumnInfo(name="SendOrReceive") //specify the column name
+        boolean isSent;
+//        Create a primary key
+        @PrimaryKey (autoGenerate = true)
+        @ColumnInfo(name="id")
+        public int id;
+        ChatMessage(String message, String timeSent, boolean isSent){
+            this.message = message;
+            this.timeSent = timeSent;
+            this.isSent = isSent;
         }
 
         public String getMessage() {
@@ -159,7 +251,7 @@ public class ChatRoom extends AppCompatActivity {
         }
 
         public boolean isSentButton() {
-            return isSentButton;
+            return isSent;
         }
     }
 }

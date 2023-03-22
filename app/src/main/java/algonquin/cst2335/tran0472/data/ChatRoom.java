@@ -185,9 +185,9 @@ public class ChatRoom extends AppCompatActivity {
 
             FragmentManager fMgr = getSupportFragmentManager(); //create a FragmentManager object, which is a Singleton object to load a Fragment
             FragmentTransaction tx = fMgr.beginTransaction();   // create what's called a FragmentTransaction, which can add, replace ore remove a fragment
-            tx.add(R.id.fragmentLocation, chatFragment);    //add() function needs the id of the FrameLayout where it will load the fragment
+            tx.replace(R.id.fragmentLocation, chatFragment);    //replace() function needs the id of the FrameLayout where it will load the fragment
             tx.commit();    //run the transaction
-
+            tx.addToBackStack("");
         });
     }
      class MyRowHolder extends RecyclerView.ViewHolder{
@@ -238,9 +238,10 @@ public class ChatRoom extends AppCompatActivity {
                 /**************************************************
                  * Lab 8: find the selected chat message and post that value to the selectedMessage variable (created in ChatRoomViewModel
                  **************************************************/
-                int position = getAdapterPosition();
+                int position = getAbsoluteAdapterPosition();
                 ChatMessage selected = messageList.get(position);
                 chatModel.selectedMessage.postValue(selected);
+
             });
             messageText = itemView.findViewById(R.id.message);
             timeText = itemView.findViewById(R.id.time);

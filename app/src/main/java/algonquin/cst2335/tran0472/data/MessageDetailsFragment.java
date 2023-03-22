@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import algonquin.cst2335.tran0472.databinding.DetailsLayoutBinding;
 
 public class MessageDetailsFragment extends Fragment {
@@ -24,6 +27,7 @@ public class MessageDetailsFragment extends Fragment {
 
         binding.messageText.setText(selected.message);
         binding.timeText.setText(selected.timeSent);
+        binding.sendReceiveText.setText(selected.isSentButton()?"Sent":"Received");
         binding.databaseText.setText("Id = "+selected.id);
         return binding.getRoot();
     }

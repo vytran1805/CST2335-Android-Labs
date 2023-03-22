@@ -1,4 +1,4 @@
-package algonquin.cst2335.tran0472;
+package algonquin.cst2335.tran0472.data;
 
 import androidx.appcompat.app.AppCompatActivity;
 

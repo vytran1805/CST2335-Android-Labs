@@ -1,8 +1,10 @@
-package algonquin.cst2335.tran0472;
+package algonquin.cst2335.tran0472.data;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import algonquin.cst2335.tran0472.data.ChatRoomViewModel;
+import algonquin.cst2335.tran0472.R;
 import algonquin.cst2335.tran0472.databinding.ActivityChatRoomBinding;
 import algonquin.cst2335.tran0472.databinding.ReceiveMessageBinding;
 import algonquin.cst2335.tran0472.databinding.SentMessageBinding;
@@ -53,7 +55,9 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-//        initialize the chatModel
+        /*
+        Lab 7: initialize the chatModel
+         */
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messageList = chatModel.messages.getValue();    //survives rotation changes
 
@@ -173,6 +177,18 @@ public class ChatRoom extends AppCompatActivity {
         };
 //        specify a single column scrolling in a Vertical direction (we can either scroll in a Vertical or Horizontal direction through the items)
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
+        /*
+        Lab 8 Fragments: register selectedMessage as a listener to the MutableLiveData object
+         */
+        chatModel.selectedMessage.observe(this, (newMessageValue) -> {
+            MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
+
+            FragmentManager fMgr = getSupportFragmentManager(); //create a FragmentManager object, which is a Singleton object to load a Fragment
+            FragmentTransaction tx = fMgr.beginTransaction();   // create what's called a FragmentTransaction, which can add, replace ore remove a fragment
+            tx.add(R.id.fragmentLocation, chatFragment);    //add() function needs the id of the FrameLayout where it will load the fragment
+            tx.commit();    //run the transaction
+
+        });
     }
      class MyRowHolder extends RecyclerView.ViewHolder{
         TextView messageText;
@@ -184,44 +200,52 @@ public class ChatRoom extends AppCompatActivity {
 //            it'll load an alert window asking if we want to delete this row
              ***************************************************************************/
             itemView.setOnClickListener(clk -> {    //we have clicked on
-                //we have
-                int position = getAdapterPosition();    //which row was clicked
-                ChatMessage removedMessage = messageList.get(position);
-                //thread1.execute(()->{
-                    //                set the alert dialog to ask if user want to delete message
-                    AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
-                    builder.setMessage("Do you want to delete the message: "+messageText.getText());
-                    builder.setTitle("Question: ");
-                    // create a button to confirm the action
-                    builder.setNegativeButton("No",(dialog, cl)->{
-                        //if user click No, it does nothing
-                    });
-                    builder.setPositiveButton("Yes",(dialog, cl)->{
-                        Executor thread1 = Executors.newSingleThreadExecutor();
-                        //use thread.execute() to avoid crashing whenever using DAO
-                        thread1.execute(()->{   //add everything from the database
-                            mDAO.deleteMessage(removedMessage);  //delete message from the database
-                        });
-                        messageList.remove(position);
-                        myAdapter.notifyItemRemoved(position);  //update the RecycleView
-                        /**
-                         * Snackbar similar to Toast, it shows a message for a LENGTH_SHORT or LENGTH_LONG amount of time
-                         * position is the index of the table, start at 0, so we add 1 to get actual the order of the message
-                         * it also uses the Builder Pattern: .make() returns a Snackbar, .setAction() can undo, .show() shows it
-                         */
-                        Snackbar.make(messageText,"You deleted message #"+(position+1),Snackbar.LENGTH_LONG)
-                                .setAction("Undo",click->{
-                                    messageList.add(position,removedMessage);
-                                    myAdapter.notifyItemInserted(position);
-                                })
-                                .show();
-                     });
-                    //this actually shows the functions above
-                    builder.create().show();    //this is builder pattern: 2 functions called the same time,
-                });
+//                //we have
+//                int position = getAdapterPosition();    //which row was clicked
+//                ChatMessage removedMessage = messageList.get(position);
+//                //thread1.execute(()->{
+//                    //                set the alert dialog to ask if user want to delete message
+//                    AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+//                    builder.setMessage("Do you want to delete the message: "+messageText.getText());
+//                    builder.setTitle("Question: ");
+//                    // create a button to confirm the action
+//                    builder.setNegativeButton("No",(dialog, cl)->{
+//                        //if user click No, it does nothing
+//                    });
+//                    builder.setPositiveButton("Yes",(dialog, cl)->{
+//                        Executor thread1 = Executors.newSingleThreadExecutor();
+//                        //use thread.execute() to avoid crashing whenever using DAO
+//                        thread1.execute(()->{   //add everything from the database
+//                            mDAO.deleteMessage(removedMessage);  //delete message from the database
+//                        });
+//                        messageList.remove(position);
+//                        myAdapter.notifyItemRemoved(position);  //update the RecycleView
+//                        /**
+//                         * Snackbar similar to Toast, it shows a message for a LENGTH_SHORT or LENGTH_LONG amount of time
+//                         * position is the index of the table, start at 0, so we add 1 to get actual the order of the message
+//                         * it also uses the Builder Pattern: .make() returns a Snackbar, .setAction() can undo, .show() shows it
+//                         */
+//                        Snackbar.make(messageText,"You deleted message #"+(position+1),Snackbar.LENGTH_LONG)
+//                                .setAction("Undo",click->{
+//                                    messageList.add(position,removedMessage);
+//                                    myAdapter.notifyItemInserted(position);
+//                                })
+//                                .show();
+//                     });
+//                    //this actually shows the functions above
+//                    builder.create().show();    //this is builder pattern: 2 functions called the same time,
+
+                /**************************************************
+                 * Lab 8: find the selected chat message and post that value to the selectedMessage variable (created in ChatRoomViewModel
+                 **************************************************/
+                int position = getAdapterPosition();
+                ChatMessage selected = messageList.get(position);
+                chatModel.selectedMessage.postValue(selected);
+            });
             messageText = itemView.findViewById(R.id.message);
             timeText = itemView.findViewById(R.id.time);
         }
+
     }
 
     @Entity //Save obj of the class into the database

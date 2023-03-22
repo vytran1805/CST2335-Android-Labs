@@ -5,8 +5,14 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 
-import algonquin.cst2335.tran0472.ChatRoom;
-
+/**
+ * Store ChatMessages to survive rotation changes
+ */
 public class ChatRoomViewModel extends ViewModel {
     public MutableLiveData<ArrayList<ChatRoom.ChatMessage>> messages = new MutableLiveData<>();
+    /**
+     * Lab8: Fragments
+     */
+    public MutableLiveData<ChatRoom.ChatMessage> selectedMessage = new MutableLiveData< >();
+
 }

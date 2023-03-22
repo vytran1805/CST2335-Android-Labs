@@ -85,16 +85,16 @@ public class ChatRoom extends AppCompatActivity {
                     //binding.textInput.getText().toString();
             messageList.add(txt);
             //no more crashes
-//            Executor thread = Executors.newSingleThreadExecutor();
-//
-//        /**********************************************
-//            //Lab7:insert into database
-//         *********************************************/
-//            thread.execute(()->{
-//                // return the id
-//                   long id = mDAO.insertMessage(txt);
-//                   txt.id = (int) id;   //database is saying what the id is
-//            });
+            Executor thread = Executors.newSingleThreadExecutor();
+
+        /**********************************************
+            //Lab7:insert into database
+         *********************************************/
+            thread.execute(()->{
+                // return the id
+                   long id = mDAO.insertMessage(txt);
+                   txt.id = (int) id;   //database is saying what the id is
+            });
 
             // notify the Adapter obj that something has been inserted or deleted so the RecyclerView update the new element
             myAdapter.notifyItemInserted(messageList.size()-1);    //the row that needs to be updated is messages.size()-1
@@ -110,6 +110,16 @@ public class ChatRoom extends AppCompatActivity {
             //binding.textInput.getText().toString();
             messageList.add(obj);
             //add(txt.getMessage());
+            Executor thread = Executors.newSingleThreadExecutor();
+
+            /**********************************************
+             //Lab7:insert into database
+             *********************************************/
+            thread.execute(()->{
+                // return the id
+                long id = mDAO.insertMessage(obj);
+                obj.id = (int) id;   //database is saying what the id is
+            });
             // notify the Adapter obj that something has been inserted or deleted so the RecyclerView update the new element
             myAdapter.notifyItemInserted(messageList.size()-1);    //the row that needs to be updated is messages.size()-1
 

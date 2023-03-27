@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Vy\'s Android Labs</string>
-    <string name="hello_message">Type your password</string>
-    <string name="button_message">Login</string>
+    <string name="hello_message">Type in the name of a city</string>
+    <string name="button_message">GET FORCAST</string>
 </resources>

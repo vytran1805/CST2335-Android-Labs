@@ -8,18 +8,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import algonquin.cst2335.tran0472.databinding.ActivityMainBinding;
+
 /** This is the page that simulates a login page
  * @author VyTran
  * @version 1.0
  * @since Version 1.0 (or Java 17)
  */
 public class MainActivity extends AppCompatActivity {
-    /** This holds the text at the center of the screen */
-    private TextView tv = null;
-    /** This holds the place that gets the password input */
-    private EditText thePasswordText = null;
-    /** This holds the button of the screen */
-    private Button btn = null;
+    //create a Volley object that will connect to a server
+    RequestQueue queue = null;
+    private String cityName;
 
     /**
      * onCreate() method
@@ -28,81 +40,79 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        tv = findViewById(R.id.textView);
-        thePasswordText = findViewById(R.id.editText);
-        btn = findViewById(R.id.button);
+        queue = Volley.newRequestQueue(this);
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());  //load xml file on screen
 
-        btn.setOnClickListener(btn->{
-            String password = thePasswordText.getText().toString();
-            //looking for UpperCase, LowerCase, Number, and Special character
-            if(checkPasswordComplexity(password)){
-                tv.setText("Your password meets the requirements");
-            }else {
-                tv.setText("You shall not pass");
-            }
+        binding.forcastBtn.setOnClickListener(click -> {
+            cityName = binding.cityTextField.getText().toString();
+
+            String stringUrl = "";
+            try {
+                stringUrl = "https://api.openweathermap.org/data/2.5/weather?q=" +
+                        URLEncoder.encode(cityName, "UTF-8") +
+                        "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
+            } catch(UnsupportedEncodingException e) { e.printStackTrace(); }
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, stringUrl, null, (response) -> {
+                try {
+                    JSONObject coord = response.getJSONObject("coord");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                JSONArray weatherArray = null;
+                try {
+                    weatherArray = response.getJSONArray("weather");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                JSONObject position0 = null;
+                try {
+                    position0 = weatherArray.getJSONObject(0);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    String description = position0.getString("description");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    String iconName = position0.getString("icon");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                JSONObject mainObject = null;
+                try {
+                    mainObject = response.getJSONObject("main");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    double current = mainObject.getDouble("temp");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    double min = mainObject.getDouble("temp_min");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    double max = mainObject.getDouble("temp_max");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    int humidity = mainObject.getInt("humidity");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }, (error) -> {});
+            queue.add(request);
+
+
+
         });
-    }
-
-    /**
-     * This methods checks if the string has a special case
-     * @param c characters to be checked
-     * @return true if the char c is one of the case
-     */
-    private boolean isSpecialCharacter(char c){
-        switch (c){
-            case '#':
-            case '?':
-            case '*':
-            case '$':
-            case '%':
-            case '^':
-            case '&':
-            case '!':
-            case '@':
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /** This function scans the string to see if it is complex enough
-     *
-     * @param pw a String that is being checked
-     * @return Returns true if the password has Uppercase, Lowercase, Number and Special character, otherwise false
-     */
-    private boolean checkPasswordComplexity(String pw) {
-        boolean isComplexEnough = false;
-        boolean foundUpperCase, foundLowerCase, foundNumber, foundSpecial;
-        foundUpperCase = foundLowerCase = foundNumber = foundSpecial = false;
-
-        for (int i = 0;i < pw.length();i++){
-            char c = pw.charAt(i);
-            if(Character.isUpperCase(c)){      //call the isSpecialCharacter() on the character at index i of the pw String
-                foundUpperCase = true;
-            }if(Character.isLowerCase(c)){
-                foundLowerCase = true;
-            }if(Character.isDigit(c)){
-                foundNumber = true;
-            }if(isSpecialCharacter(c)){
-                foundSpecial = true;
-            }
-        }
-        if(!foundUpperCase){
-            Toast.makeText(this, "Missing an Upper Case letter", Toast.LENGTH_SHORT).show();
-            return false;
-        } else if (!foundLowerCase) {
-            Toast.makeText(this, "Missing a Lower Case letter", Toast.LENGTH_SHORT).show();
-            return false;
-        }else if (!foundNumber){
-            Toast.makeText(this, "Missing a Number", Toast.LENGTH_SHORT).show();
-            return false;
-        } else if (!foundSpecial) {
-            Toast.makeText(this, "Missing a Special Case", Toast.LENGTH_SHORT).show();
-            return false;
-        }else{
-            return true;   //only get here if they're all true
-        }
     }
 }

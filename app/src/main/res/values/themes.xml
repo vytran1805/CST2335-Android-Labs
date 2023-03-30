@@ -13,5 +13,8 @@
         <item name="android:statusBarColor">@color/yellow_700</item>
         <!-- Text color -->
         <item name="android:textColor">@color/my_text</item>
+        <!--tell Android to use ToolBar instead of ActionBar-->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>

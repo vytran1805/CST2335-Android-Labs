@@ -13,10 +13,15 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.Room;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -42,6 +47,7 @@ public class ChatRoom extends AppCompatActivity {
     ChatMessageDAO mDAO;
 
     SimpleDateFormat sdf = new SimpleDateFormat("EEEE,dd-MMM-yyyy hh-mm-ss a");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +61,10 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        /**********************************************************
+         * Lab 9:Toolbar
+         **********************************************************/
+        setSupportActionBar(binding.toolbar);
         /*
         Lab 7: initialize the chatModel
          */
@@ -86,18 +96,18 @@ public class ChatRoom extends AppCompatActivity {
             String message = binding.textInput.getText().toString();
             String currentDateTime = sdf.format(new Date());
             ChatMessage txt = new ChatMessage(message, currentDateTime, true);
-                    //binding.textInput.getText().toString();
+            //binding.textInput.getText().toString();
             messageList.add(txt);
             //no more crashes
             Executor thread = Executors.newSingleThreadExecutor();
 
-        /**********************************************
-            //Lab7:insert into database
-         *********************************************/
+            /**********************************************
+             //Lab7:insert into database
+             *********************************************/
             thread.execute(()->{
                 // return the id
-                   long id = mDAO.insertMessage(txt);
-                   txt.id = (int) id;   //database is saying what the id is
+                long id = mDAO.insertMessage(txt);
+                txt.id = (int) id;   //database is saying what the id is
             });
 
             // notify the Adapter obj that something has been inserted or deleted so the RecyclerView update the new element
@@ -201,14 +211,63 @@ public class ChatRoom extends AppCompatActivity {
             tx.addToBackStack("");
         });
     }
-     class MyRowHolder extends RecyclerView.ViewHolder{
+    /**
+     * This function loads a Menu layout file, it should get a MenuInflater object to load an XML file
+     * @param menu Menu object
+     * @return boolean
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return true;
+    }
+
+    /**
+     * This functions loads the corresponding activity once user clicks on menu item
+     * @param item menu item
+     * @return boolean
+     */
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch( item.getItemId() )
+        {
+            case R.id.item_1:
+//put your ChatMessage deletion code here. If you select this item, you shoul show the alert dialog
+                //we have
+
+                //                set the alert dialog to ask if user want to delete message
+                AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+                builder.setMessage("Do you want to delete the message? ");
+                builder.setTitle("Question: ");
+                // create a button to confirm the action
+                builder.setNegativeButton("No",(dialog, cl)->{
+                    //if users click No, it does nothing
+                });
+                builder.setPositiveButton("Yes",(dialog, cl)->{
+
+                    Toast.makeText(this, "One message deleted!", Toast.LENGTH_SHORT).show();
+                });
+                //this actually shows the functions above
+                builder.create().show();    //this is builder pattern: 2 functions called the same time,
+
+            case R.id.item_2:
+                Toast.makeText(this, "Version 1.0, created by Vy Tran", Toast.LENGTH_SHORT).show();
+//asking if the user wants to delete this message.
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    class MyRowHolder extends RecyclerView.ViewHolder{
         TextView messageText;
         TextView timeText;
         public MyRowHolder(@NonNull View itemView) {     //iemView will be the root of the layout: ConstrainLayout in xml file
             super(itemView);
             /***************************************************************************
-//            Lab7: setOnClickListener for itemView so that when we click anywhere on the ConstraintLayout,
-//            it'll load an alert window asking if we want to delete this row
+             //            Lab7: setOnClickListener for itemView so that when we click anywhere on the ConstraintLayout,
+             //            it'll load an alert window asking if we want to delete this row
              ***************************************************************************/
             itemView.setOnClickListener(clk -> {    //we have clicked on
 //                //we have
@@ -268,7 +327,7 @@ public class ChatRoom extends AppCompatActivity {
         String timeSent;
         @ColumnInfo(name="SendOrReceive") //specify the column name
         boolean isSent;
-//        Create a primary key
+        //        Create a primary key
         @PrimaryKey (autoGenerate = true)
         @ColumnInfo(name="id")
         public int id;

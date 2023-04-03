@@ -2,15 +2,21 @@ package algonquin.cst2335.tran0472;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -18,6 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -31,6 +41,9 @@ import algonquin.cst2335.tran0472.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
     //create a Volley object that will connect to a server
     RequestQueue queue = null;
+    Bitmap image;
+
+
     private String cityName;
 
     /**
@@ -55,12 +68,13 @@ public class MainActivity extends AppCompatActivity {
                         "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
             } catch(UnsupportedEncodingException e) { e.printStackTrace(); }
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, stringUrl, null, (response) -> {
+                JSONArray weatherArray = null;
+                int humidity;
                 try {
                     JSONObject coord = response.getJSONObject("coord");
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
-                JSONArray weatherArray = null;
                 try {
                     weatherArray = response.getJSONArray("weather");
                 } catch (JSONException e) {
@@ -77,8 +91,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
+                String iconName;
                 try {
-                    String iconName = position0.getString("icon");
+                    iconName = position0.getString("icon");
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -104,15 +119,54 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
                 try {
-                    int humidity = mainObject.getInt("humidity");
+                     humidity = mainObject.getInt("humidity");
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
+                /*******************************
+                 * Load image from URL and stores as a bitmap
+                 *
+                 *********************************/
+                //  check if the icon file already exists on the device.
+                // If it does, then do not download it the second time
+                String pathname = getFilesDir()+"/"+ iconName+".png";
+                File file = new File(pathname);
+                if(file.exists()){
+                    image = BitmapFactory.decodeFile(pathname);
+                }else {
+                    ImageRequest imgEeq = new ImageRequest("https://openweathermap.org/img/w/01d.png", new Response.Listener<Bitmap>() {
+                        /**
+                         * downloads image from url and stores as a bitmap
+                         *
+                         * @param bitmap bitmap
+                         */
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            try{
+                                image = bitmap;
+                                image.compress(Bitmap.CompressFormat.PNG,100,MainActivity.this.openFileOutput(iconName+".png", Activity.MODE_PRIVATE));
+                            } catch (FileNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }, 1024, 1024, ImageView.ScaleType.CENTER, null, (error) -> {
+                    });
+                }
+//                FileOutputStream fOut = null;
+//                try {
+//                    fOut = openFileOutput( "01d" + ".png", Context.MODE_PRIVATE);
+//                    imgEeq.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+//                    fOut.flush();
+//                    fOut.close();
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                } catch (FileNotFoundException e) {
+//                    throw new RuntimeException(e);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
             }, (error) -> {});
             queue.add(request);
-
-
-
         });
     }
 }

@@ -2,11 +2,13 @@ package algonquin.cst2335.tran0472;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,7 +35,9 @@ import java.net.URLEncoder;
 
 import algonquin.cst2335.tran0472.databinding.ActivityMainBinding;
 
-/** This is the page that simulates a login page
+/**
+ * This is the page that simulates a login page
+ *
  * @author VyTran
  * @version 1.0
  * @since Version 1.0 (or Java 17)
@@ -42,14 +46,21 @@ public class MainActivity extends AppCompatActivity {
     //create a Volley object that will connect to a server
     RequestQueue queue = null;
     Bitmap image;
-
+    double current;
+    double minTemp;
+    double maxTemp;
+    String iconName;
+    int humidity;
 
     private String cityName;
+    String description;
 
     /**
      * onCreate() method
+     *
      * @param savedInstanceState
      */
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,67 +70,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());  //load xml file on screen
 
         binding.forcastBtn.setOnClickListener(click -> {
-            cityName = binding.cityTextField.getText().toString();
-
-            String stringUrl = "";
+            cityName = binding.cityTextView.getText().toString();
+            String stringUrl = null;
             try {
-                stringUrl = "https://api.openweathermap.org/data/2.5/weather?q=" +
-                        URLEncoder.encode(cityName, "UTF-8") +
-                        "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
-            } catch(UnsupportedEncodingException e) { e.printStackTrace(); }
+                stringUrl = new StringBuilder()
+                        .append("https://api.openweathermap.org/data/2.5/weather?q=")
+                        .append(URLEncoder.encode(cityName, "UTF-8"))
+                        .append("&appid=7e943c97096a9784391a981c4d878b22&units=metric").toString();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, stringUrl, null, (response) -> {
-                JSONArray weatherArray = null;
-                int humidity;
+
                 try {
                     JSONObject coord = response.getJSONObject("coord");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    weatherArray = response.getJSONArray("weather");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                JSONObject position0 = null;
-                try {
-                    position0 = weatherArray.getJSONObject(0);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
+                    JSONArray weatherArray = response.getJSONArray("weather");
+                    JSONObject position0 = weatherArray.getJSONObject(0);
                     String description = position0.getString("description");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                String iconName;
-                try {
                     iconName = position0.getString("icon");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                JSONObject mainObject = null;
-                try {
-                    mainObject = response.getJSONObject("main");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    double current = mainObject.getDouble("temp");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    double min = mainObject.getDouble("temp_min");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    double max = mainObject.getDouble("temp_max");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                     humidity = mainObject.getInt("humidity");
+                    JSONObject mainObject = response.getJSONObject("main");
+                    current = mainObject.getDouble("temp");
+                    minTemp = mainObject.getDouble("temp_min");
+                    maxTemp = mainObject.getDouble("temp_max");
+                    humidity = mainObject.getInt("humidity");
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -129,12 +102,12 @@ public class MainActivity extends AppCompatActivity {
                  *********************************/
                 //  check if the icon file already exists on the device.
                 // If it does, then do not download it the second time
-                String pathname = getFilesDir()+"/"+ iconName+".png";
+                String pathname = getFilesDir() + "/" + iconName + ".png";
                 File file = new File(pathname);
-                if(file.exists()){
+                if (file.exists()) {
                     image = BitmapFactory.decodeFile(pathname);
-                }else {
-                    ImageRequest imgEeq = new ImageRequest("https://openweathermap.org/img/w/01d.png", new Response.Listener<Bitmap>() {
+                } else {
+                    ImageRequest imgEeq = new ImageRequest("https://openweathermap.org/img/w/" + iconName + ".png", new Response.Listener<Bitmap>() {
                         /**
                          * downloads image from url and stores as a bitmap
                          *
@@ -142,17 +115,18 @@ public class MainActivity extends AppCompatActivity {
                          */
                         @Override
                         public void onResponse(Bitmap bitmap) {
-                            try{
+                            try {
                                 image = bitmap;
-                                image.compress(Bitmap.CompressFormat.PNG,100,MainActivity.this.openFileOutput(iconName+".png", Activity.MODE_PRIVATE));
-                            } catch (FileNotFoundException e) {
-                                throw new RuntimeException(e);
+                                image.compress(Bitmap.CompressFormat.PNG, 100, MainActivity.this.openFileOutput(iconName + ".png", Activity.MODE_PRIVATE));
+                                binding.imageView.setImageBitmap(image);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }, 1024, 1024, ImageView.ScaleType.CENTER, null, (error) -> {
                     });
                 }
-//                FileOutputStream fOut = null;
+                //                FileOutputStream fOut = null;
 //                try {
 //                    fOut = openFileOutput( "01d" + ".png", Context.MODE_PRIVATE);
 //                    imgEeq.compress(Bitmap.CompressFormat.PNG, 100, fOut);
@@ -165,8 +139,25 @@ public class MainActivity extends AppCompatActivity {
 //                } catch (IOException e) {
 //                    throw new RuntimeException(e);
 //                }
-            }, (error) -> {});
+            }, (error) -> {
+            });
             queue.add(request);
+            runOnUiThread(()->{
+                binding.tempTextView.setText("The current temperature is " + current);
+                binding.tempTextView.setVisibility(View.VISIBLE);
+                binding.minTextView.setText("The min temperature is " + minTemp);
+                binding.minTextView.setVisibility(View.VISIBLE);
+                binding.maxTextView.setText("The max temperature is " + maxTemp);
+                binding.maxTextView.setVisibility(View.VISIBLE);
+                binding.huminidyTextView.setText("The humidity is " + humidity + "%");
+                binding.huminidyTextView.setVisibility(View.VISIBLE);
+                binding.imageView.setImageBitmap(image);
+                binding.imageView.setVisibility(View.VISIBLE);
+                binding.descriptionTextView.setText(description);
+                binding.descriptionTextView.setVisibility(View.VISIBLE);
+            });
+
+
         });
     }
 }

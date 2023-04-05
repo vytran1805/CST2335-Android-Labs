@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
      android:layout_height="match_parent"
     android:orientation="vertical">
@@ -10,7 +12,7 @@
         android:text="@string/hello_message"/>
 
     <EditText
-        android:id="@+id/cityTextField"
+        android:id="@+id/cityTextView"
         android:hint="Type city name here"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -20,6 +22,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/button_message"/>
+
+    <TextView
+        android:id="@+id/tempTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="temp"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/maxTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="max"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/minTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="min"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/huminidyTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="huminidy"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:srcCompat="@tools:sample/avatars"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/descriptionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="description"
+        android:visibility="invisible"/>
 
 
 </LinearLayout>
